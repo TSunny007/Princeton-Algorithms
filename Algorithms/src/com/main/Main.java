@@ -1,6 +1,7 @@
 package com.main;
 
 import week1.QuickFindUF;
+import week1.QuickUnionUF;
 import week1.UF;
 
 public class Main {
@@ -17,5 +18,6 @@ public class Main {
 	        System.out.println(p + " " + q);
         }
     }
+        System.out.println(uf.count());
     }
 }
