@@ -28,24 +28,24 @@ public class Deque<Item> implements Iterable<Item> {
     private void checkDoubleQueue() {
         if (size == deque.length - 1) {
             Item[] doubled = (Item[]) new Object[deque.length * 2];
-            for (int k = 0; (k+head)%deque.length != tail+1; k++) {
-                doubled[k] = deque[(k+head)%deque.length];
+            for (int k = head, i = 0; k != (tail + 1)%deque.length; k =  (k == deque.length - 1) ? 0: k+1) {
+                doubled[i++] = deque[k];
             }
             head = 0;
-            tail = deque.length-3;
+            tail = deque.length - 2;
             deque = doubled;
         }
     }
 
     private void checkHalveQueue() {
-        if (size == deque.length / 4) {
+        if (deque.length > 32 && size == deque.length / 4){
             Item[] halved = (Item[]) new Object[deque.length / 2];
-            for (int i = head, k =0; i != tail; i=(i+1)%deque.length) {
-                halved[k++] = deque[i];
+            for (int k = head, i = 0; k != (tail + 1)%deque.length; k =  (k == deque.length - 1) ? 0: k+1) {
+                halved[i++] = deque[k];
             }
-            deque = halved;
             head = 0;
             tail = deque.length / 4 - 1;
+            deque = halved;
         }
     }
 
@@ -56,10 +56,10 @@ public class Deque<Item> implements Iterable<Item> {
             deque[0] = item;
         } else {
             checkDoubleQueue();
-            head = (head == 0) ? deque.length -1: head - 1;
+            head = (head == 0) ? deque.length - 1 : head - 1;
             deque[head] = item;
         }
-            size++;
+        size++;
     }
 
     // add the item to the end
@@ -69,7 +69,7 @@ public class Deque<Item> implements Iterable<Item> {
             deque[0] = item;
         } else {
             checkDoubleQueue();
-            tail = (tail == deque.length -1) ? 0: tail + 1;
+            tail = (tail == deque.length - 1) ? 0 : tail + 1;
             deque[tail] = item;
         }
         size++;
@@ -78,22 +78,21 @@ public class Deque<Item> implements Iterable<Item> {
     // remove and return the item from the front
     public Item removeFirst() {
         if (size == 0) throw new NoSuchElementException("Nothing in the deque");
-        //checkHalveQueue();
+        checkHalveQueue();
         Item dequeue = deque[head];
         deque[head] = null;
-        head = (head == deque.length -1) ? 0: head + 1;
+        head = (head == deque.length - 1) ? 0 : head + 1;
         size--;
         return dequeue;
     }
 
-
     // remove and return the item from the end
     public Item removeLast() {
         if (size == 0) throw new NoSuchElementException("Nothing in the deque");
-        //checkHalveQueue();
+        checkHalveQueue();
         Item pop = deque[tail];
         deque[tail] = null;
-        tail = (tail == 0) ? deque.length -1: tail - 1;
+        tail = (tail == 0) ? deque.length - 1 : tail - 1;
         size--;
         return pop;
     }
@@ -107,13 +106,18 @@ public class Deque<Item> implements Iterable<Item> {
 
             @Override
             public boolean hasNext() {
-                return currentIndex %deque.length!= tail+1;
+                return currentIndex != (tail + 1) % deque.length;
             }
 
             @Override
             public Item next() {
                 if (!hasNext()) throw new NoSuchElementException("Nothing in the deque");
-                return deque[currentIndex++%deque.length];
+                if (deque[currentIndex] ==  null) {
+                    System.out.println("Uh oh!");
+                }
+                Item returnItem =  deque[currentIndex];
+                currentIndex = currentIndex == deque.length-1? 0: currentIndex+1;
+                return returnItem;
             }
 
             @Override
@@ -127,32 +131,64 @@ public class Deque<Item> implements Iterable<Item> {
     public static void main(String[] args) {
         Deque<Integer> d = new Deque<>();
         Random random = new Random();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 66; i++) {
             int action = random.nextInt(10);
-            switch(action) {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                    d.addFirst(i);
-                    break;
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                    d.addLast(i);
-                    break;
-                case 8:
-                    d.removeFirst();
-                    break;
-                case 9:
-                    d.removeLast();
-                    break;
+            if (i < 33)
+                switch (action) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 8:
+                        d.addFirst(i);
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 9:
+                        d.addLast(i);
+                }
+            else {
+                switch (action) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 8:
+                        d.removeFirst();
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 9:
+                        d.removeLast();
+                }
             }
 
+//            switch (action) {
+//                    case 0:
+//                    case 1:
+//                    case 2:
+//                        d.addFirst(i);
+//                        break;
+//                    case 3:
+//                    case 8:
+//                    case 4:
+//                        d.addLast(i);
+//                        break;
+//                    case 5:
+//                    case 6:
+//                        d.removeFirst();
+//                        break;
+//                    case 7:
+//                    case 9:
+//                        d.addLast(i);
+//                }
         }
         for (Integer element : d) {
-            System.out.print(element+ " ");
+            System.out.print(element + " ");
         }
     }
 }
