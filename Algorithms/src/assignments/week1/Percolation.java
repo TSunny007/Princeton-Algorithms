@@ -1,17 +1,22 @@
-package assignments.percolation;
+package assignments.week1;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    final int N;
-    boolean[] grid;
-    WeightedQuickUnionUF uf;
-    int openSites;
+    private final int N;
+    private boolean[] grid;
+    private WeightedQuickUnionUF uf;
+    private int openSites;
 
     /*
      // create n-by-n grid, with all sites blocked
      */
     public Percolation(int n) {
+
+        if (n <= 0) {
+            throw new IllegalArgumentException();
+        }
+
         N = n;
         grid = new boolean[n*n+2];
         uf = new WeightedQuickUnionUF(n*n+2);
@@ -21,6 +26,7 @@ public class Percolation {
     // open site (row, col) if it is not open already
      */
     public void open(int row, int col) {
+        validateIndices(row, col);
         if (isOpen(row,col)) return;
 
         grid[index(row, col)] = true;
@@ -47,6 +53,7 @@ public class Percolation {
     }
 
     private int index(int row, int col) {
+        validateIndices(row, col);
         return (N * (row - 1) + col);
     }
 
@@ -59,13 +66,15 @@ public class Percolation {
     // is site (row, col) open?
      */
     public boolean isOpen(int row, int col) {
+        validateIndices(row, col);
         return grid[index(row,col)];
     }
 
     // is site (row, col) full?
     public boolean isFull(int row, int col)
     {
-        return uf.connected(0,N*N+1);
+        validateIndices(row, col);
+        return uf.connected(0, index(row,col));
     }
 
     /*
@@ -82,4 +91,7 @@ public class Percolation {
         return uf.connected(0, N*N+1);
     }
 
+    private void validateIndices(int i, int j) {
+        if (!isValid(i, j)) throw new IllegalArgumentException("Invalid indices provided.");
+    }
 }
